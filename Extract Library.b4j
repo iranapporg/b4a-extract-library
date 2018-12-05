@@ -1,0 +1,82 @@
+﻿Version=5.82
+AppType=StandardJava
+NumberOfModules=0
+Build1=Default,b4j.example
+NumberOfFiles=0
+NumberOfLibraries=2
+Library1=jcore
+Library2=javaobject
+@EndOfDesignText@
+'Non-UI application (console / server application)
+#Region Project Attributes 
+	#CommandLineArgs:
+	#MergeLibraries: True 
+#End Region
+
+Sub Process_Globals
+	
+End Sub
+
+Sub AppStart (Args() As String)
+	
+	Log(CRLF)
+	Log("Welcome to Library Extractor!")
+	Log("You have to add libraries folder path in lib_path.txt")
+	Log(CRLF)
+	
+	Dim reader As TextReader
+	Dim sys As JavaObject
+	sys.InitializeStatic("java.lang.System")
+	reader.Initialize(sys.GetField("in"))
+	
+	Dim output,path As String
+	Log("Input b4a project filename (b4a file): ")
+	path	=	reader.ReadLine
+	
+	Log("Input output library foder for extract: ")
+	output	=	reader.ReadLine
+	
+	Dim lib_path As List
+	lib_path	=	File.ReadList(File.DirApp,"lib_path.txt")
+	
+	If File.Exists("",path) Then
+		
+		Dim temp As String
+		temp	=	File.ReadString("",path)
+		
+		Dim match As Matcher
+		match	=	Regex.Matcher("Library\d+=(\S+)",temp)
+		
+		Dim i As Int
+		
+		Do While match.Find
+			
+			Dim lib As String
+			lib	=	match.Group(1)
+			
+			If File.Exists(lib_path.Get(0),lib & ".jar") Then
+				File.Copy(lib_path.Get(0),lib & ".jar",output,lib & ".jar")
+				File.Copy(lib_path.Get(0),lib & ".xml",output,lib & ".xml")
+				i = i + 1
+			Else
+				If lib_path.Size = 2 Then
+					If File.Exists(lib_path.Get(1),lib & ".jar") Then
+						File.Copy(lib_path.Get(1),lib & ".jar",output,lib & ".jar")
+						File.Copy(lib_path.Get(1),lib & ".xml",output,lib & ".xml")
+						i = i + 1
+					End If
+				End If
+			End If
+			
+		Loop
+		
+		Log($"${i} library copied to ${output} successfully"$)
+		
+	End If
+	
+End Sub
+
+'Return true to allow the default exceptions handler to handle the uncaught exception.
+Sub Application_Error (Error As Exception, StackTrace As String) As Boolean
+	Return True
+End Sub

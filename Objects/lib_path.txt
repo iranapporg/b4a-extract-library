@@ -1,0 +1,2 @@
+E:\B4a\Tools\Libraries
+C:\Program Files (x86)\Anywhere Software\Basic4android\Libraries
